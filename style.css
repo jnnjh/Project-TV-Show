@@ -48,3 +48,16 @@ body {
   line-height: 1.5;
   text-align: left;
 }
+#search {
+  margin-bottom: 10px;
+}
+#episodeAmount {
+  margin-top: 0;
+}
+.episode-search {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: start;
+  gap: 10px;
+  align-items: start;
+}
