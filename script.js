@@ -1,5 +1,11 @@
 //You can edit ALL of the code here
-function setup() {
+
+const rootElem = document.getElementById("root");
+rootElem.textContent = "Loading episodes, please wait...";
+
+
+
+/*function setup() {
   const allEpisodes = getAllEpisodes();
   makePageForEpisodes(allEpisodes);
 }
@@ -10,7 +16,7 @@ function setup() {
 
 
 }*/
-const state={
+/*const state={
   allEpisodes:getAllEpisodes(),
   searchTerm:""
 }
@@ -77,4 +83,4 @@ selectEpisode.addEventListener("change",(event)=>{
 });
 
 window.onload = setup;
-
+*/
