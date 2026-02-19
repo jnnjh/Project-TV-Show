@@ -3,7 +3,25 @@
 const rootElem = document.getElementById("root");
 rootElem.textContent = "Loading episodes, please wait...";
 
+const state = {
+  allEpisodes: [],
+  searchTerm: ""
+};
 
+async function fetchEpisodes() {
+  try {
+    const response = await fetch("https://api.tvmaze.com/shows/82/episodes");
+    if (!response.ok) throw new Error("Network response was not ok");
+    const episodes = await response.json();
+    state.allEpisodes = episodes;
+    console.log("Episodes fetched:", episodes.length);
+  } catch (error) {
+    rootElem.textContent = "Error loading episodes. Please try again later.";
+    console.error(error);
+  }
+}
+
+window.onload = fetchEpisodes;
 
 /*function setup() {
   const allEpisodes = getAllEpisodes();
