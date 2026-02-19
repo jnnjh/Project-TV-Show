@@ -1,27 +1,27 @@
 //You can edit ALL of the code here
+window.onload = () => {
+    const rootElem = document.getElementById("root");
+    rootElem.textContent = "Loading episodes, please wait...";
 
-const rootElem = document.getElementById("root");
-rootElem.textContent = "Loading episodes, please wait...";
+    async function fetchEpisodes() {
+        try {
+            const response = await fetch("https://api.tvmaze.com/shows/82/episodes");
+            if (!response.ok) throw new Error("Network response was not ok");
 
-const state = {
-  allEpisodes: [],
-  searchTerm: ""
-};
-
-async function fetchEpisodes() {
-  try {
-    const response = await fetch("https://api.tvmaze.com/shows/82/episodes");
-    if (!response.ok) throw new Error("Network response was not ok");
-    const episodes = await response.json();
-    state.allEpisodes = episodes;
-    console.log("Episodes fetched:", episodes.length);
-  } catch (error) {
-    rootElem.textContent = "Error loading episodes. Please try again later.";
-    console.error(error);
-  }
+            const episodes = await response.json();
+            console.log("Episodes fetched:", episodes.length);
+            rootElem.textContent = `Fetched ${episodes.length} episodes from API.`;
+        } catch (error) {
+            rootElem.textContent = "Error loading episodes. Please try again later.";
+            console.error(error);
+        }
+    }
+    fetchEpisodes();
 }
 
-function makePageForEpisodes(episodeList) {
+
+
+/*function makePageForEpisodes(episodeList) {
   rootElem.innerHTML = "";
   episodeList.forEach((episode) => {
     const season = String(episode.season).padStart(2, "0");
@@ -44,7 +44,7 @@ async function fetchEpisodes() {
     if (!response.ok) throw new Error("Network response was not ok");
     const episodes = await response.json();
     state.allEpisodes = episodes;
-    makePageForEpisodes(state.allEpisodes); // render all episodes
+    makePageForEpisodes(state.allEpisodes);
   } catch (error) {
     rootElem.textContent = "Error loading episodes. Please try again later.";
     console.error(error);
@@ -71,10 +71,36 @@ const searchBox = document.getElementById("search");
 searchBox.addEventListener("input", (event) => {
   state.searchTerm = event.target.value;
   selectEpisode.value = "Select an episode";
-  render(); // safe now
+  render();
 });
 
-window.onload = fetchEpisodes;
+const selectEpisode = document.getElementById("select");
+
+function populateDropdown() {
+  state.allEpisodes.forEach((episode, index) => {
+    const season = String(episode.season).padStart(2, "0");
+    const number = String(episode.number).padStart(2, "0");
+    const episodeCode = `S${season}E${number}`;
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `${episodeCode} - ${episode.name}`;
+    selectEpisode.appendChild(option);
+  });
+}
+
+selectEpisode.addEventListener("change", (event) => {
+  const index = event.target.value;
+  if (index === "") {
+    render();
+  } else {
+    makePageForEpisodes([state.allEpisodes[index]]);
+  }
+});
+
+state.allEpisodes = episodes;
+populateDropdown();
+makePageForEpisodes(state.allEpisodes);
+*/
 
 /*function setup() {
   const allEpisodes = getAllEpisodes();
