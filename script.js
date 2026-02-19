@@ -22,7 +22,7 @@ window.onload = () => {
     function makePageForEpisodes(episodeList) {
         rootElem.innerHTML = "";
         episodeAmount.textContent = `Displaying ${episodeList.length}/${state.allEpisodes.length} episodes`;
-        
+
         episodeList.forEach((episode) => {
             const season = String(episode.season).padStart(2, "0");
             const number = String(episode.number).padStart(2, "0");
@@ -39,10 +39,10 @@ window.onload = () => {
     }
 
     function render() {
-        const term = (state.searchTerm || "").toLowerCase(); // <<< Safe fallback
+        const term = (state.searchTerm || "").toLowerCase();
         const filtered = state.allEpisodes.filter((episode) => {
-            const name = (episode.name || "").toLowerCase();       // <<< Safe fallback
-            const summary = (episode.summary || "").toLowerCase(); // <<< Safe fallback
+            const name = (episode.name || "").toLowerCase();
+            const summary = (episode.summary || "").toLowerCase();
             return name.includes(term) || summary.includes(term);
         });
         makePageForEpisodes(filtered);
@@ -65,16 +65,15 @@ window.onload = () => {
     selectEpisode.addEventListener("change", (event) => {
         const index = event.target.value;
         if (index === "") {
-            render(); // Show all episodes if "Select an episode"
+            render();
         } else {
             makePageForEpisodes([state.allEpisodes[index]]);
         }
     });
 
-
     searchBox.addEventListener("input", (event) => {
         state.searchTerm = event.target.value;
-        selectEpisode.value = ""; // Reset dropdown when searching
+        selectEpisode.value = "";
         render();
     });
     fetchEpisodes();
