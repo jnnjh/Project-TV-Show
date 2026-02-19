@@ -21,6 +21,36 @@ async function fetchEpisodes() {
   }
 }
 
+function makePageForEpisodes(episodeList) {
+  rootElem.innerHTML = "";
+  episodeList.forEach((episode) => {
+    const season = String(episode.season).padStart(2, "0");
+    const number = String(episode.number).padStart(2, "0");
+    const episodeCode = `S${season}E${number}`;
+    
+    const episodeDiv = document.createElement("div");
+    episodeDiv.innerHTML = `
+      <h2>${episode.name} - ${episodeCode}</h2>
+      <img src="${episode.image?.medium || ''}" alt="${episode.name}">
+      <p>${episode.summary || "No summary available."}</p>
+    `;
+    rootElem.appendChild(episodeDiv);
+  });
+}
+
+async function fetchEpisodes() {
+  try {
+    const response = await fetch("https://api.tvmaze.com/shows/82/episodes");
+    if (!response.ok) throw new Error("Network response was not ok");
+    const episodes = await response.json();
+    state.allEpisodes = episodes;
+    makePageForEpisodes(state.allEpisodes); // render all episodes
+  } catch (error) {
+    rootElem.textContent = "Error loading episodes. Please try again later.";
+    console.error(error);
+  }
+}
+
 window.onload = fetchEpisodes;
 
 /*function setup() {
