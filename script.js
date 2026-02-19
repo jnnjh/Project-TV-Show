@@ -21,6 +21,8 @@ window.onload = () => {
 
     function makePageForEpisodes(episodeList) {
         rootElem.innerHTML = "";
+        episodeAmount.textContent = `Displaying ${episodeList.length}/${state.allEpisodes.length} episodes`;
+        
         episodeList.forEach((episode) => {
             const season = String(episode.season).padStart(2, "0");
             const number = String(episode.number).padStart(2, "0");
