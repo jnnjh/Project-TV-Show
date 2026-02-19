@@ -1,6 +1,7 @@
 //You can edit ALL of the code here
 window.onload = () => {
     const rootElem = document.getElementById("root");
+    const searchBox = document.getElementById("search");
     const state = { allEpisodes: [] };
     rootElem.textContent = "Loading episodes, please wait...";
 
@@ -32,6 +33,21 @@ window.onload = () => {
                 <p>${episode.summary || "No summary available."}</p>
             `;
             rootElem.appendChild(episodeDiv);
+        });
+
+        function render() {
+            const filtered = state.allEpisodes.filter((episode) => {
+            const name = episode.name?.toLowerCase() || "";
+            const summary = episode.summary?.toLowerCase() || "";
+            return name.includes(state.searchTerm.toLowerCase()) ||
+                    summary.includes(state.searchTerm.toLowerCase());
+            });
+            makePageForEpisodes(filtered);
+        }
+
+        searchBox.addEventListener("input", (event) => {
+            state.searchTerm = event.target.value;
+            render();
         });
     }
     fetchEpisodes();
