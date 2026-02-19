@@ -51,6 +51,21 @@ async function fetchEpisodes() {
   }
 }
 
+function render() {
+  const filtered = state.allEpisodes.filter(
+    (episode) =>
+      episode.name.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
+      (episode.summary && episode.summary.toLowerCase().includes(state.searchTerm.toLowerCase()))
+  );
+  makePageForEpisodes(filtered);
+}
+
+const searchBox = document.getElementById("search");
+searchBox.addEventListener("input", (event) => {
+  state.searchTerm = event.target.value;
+  render();
+});
+
 window.onload = fetchEpisodes;
 
 /*function setup() {
