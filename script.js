@@ -1,6 +1,7 @@
 //You can edit ALL of the code here
 window.onload = () => {
     const rootElem = document.getElementById("root");
+    const state = { allEpisodes: [] };
     rootElem.textContent = "Loading episodes, please wait...";
 
     async function fetchEpisodes() {
@@ -9,12 +10,29 @@ window.onload = () => {
             if (!response.ok) throw new Error("Network response was not ok");
 
             const episodes = await response.json();
-            console.log("Episodes fetched:", episodes.length);
-            rootElem.textContent = `Fetched ${episodes.length} episodes from API.`;
+            state.allEpisodes = episodes;
+            makePageForEpisodes(state.allEpisodes);
         } catch (error) {
             rootElem.textContent = "Error loading episodes. Please try again later.";
             console.error(error);
         }
+    }
+
+    function makePageForEpisodes(episodeList) {
+        rootElem.innerHTML = "";
+        episodeList.forEach((episode) => {
+            const season = String(episode.season).padStart(2, "0");
+            const number = String(episode.number).padStart(2, "0");
+            const episodeCode = `S${season}E${number}`;
+
+            const episodeDiv = document.createElement("div");
+            episodeDiv.innerHTML = `
+                <h2>${episode.name} - ${episodeCode}</h2>
+                <img src="${episode.image?.medium || ''}" alt="${episode.name}">
+                <p>${episode.summary || "No summary available."}</p>
+            `;
+            rootElem.appendChild(episodeDiv);
+        });
     }
     fetchEpisodes();
 }
