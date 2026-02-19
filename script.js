@@ -52,18 +52,26 @@ async function fetchEpisodes() {
 }
 
 function render() {
-  const filtered = state.allEpisodes.filter(
-    (episode) =>
-      episode.name.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
-      (episode.summary && episode.summary.toLowerCase().includes(state.searchTerm.toLowerCase()))
-  );
+  if (!state.allEpisodes || state.allEpisodes.length === 0) {
+    rootElem.textContent = "Loading episodes, please wait...";
+    return;
+  }
+
+  const filtered = state.allEpisodes.filter((episode) => {
+    const name = episode.name ? episode.name.toLowerCase() : "";
+    const summary = episode.summary ? episode.summary.toLowerCase() : "";
+    const term = state.searchTerm.toLowerCase();
+    return name.includes(term) || summary.includes(term);
+  });
+
   makePageForEpisodes(filtered);
 }
 
 const searchBox = document.getElementById("search");
 searchBox.addEventListener("input", (event) => {
   state.searchTerm = event.target.value;
-  render();
+  selectEpisode.value = "Select an episode";
+  render(); // safe now
 });
 
 window.onload = fetchEpisodes;
