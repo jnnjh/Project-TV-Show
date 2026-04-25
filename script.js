@@ -3,7 +3,7 @@ const state = {
   allShows: [],
   searchTerm: "",
   showSearchTerm: "",
-  cache: {}, // 🔥 store fetched data (requirement #6)
+  cache: {}, 
 };
 
 const rootElem = document.getElementById("root");
@@ -14,11 +14,11 @@ const selectShow = document.querySelector("#selectShow");
 const showAllBtn = document.querySelector(".showAllBtn");
 const searchBox = document.getElementById("search");
 
-// NEW
+
 const showSearchBox = document.getElementById("showSearch");
 const backBtn = document.getElementById("backBtn");
 
-// ---------------- FETCH WITH CACHE ----------------
+//  FETCH WITH CACHE 
 const getData = async (url) => {
   if (state.cache[url]) return state.cache[url];
 
@@ -28,7 +28,7 @@ const getData = async (url) => {
   return data;
 };
 
-// ---------------- SHOW LISTING ----------------
+//  SHOW LISTING 
 function makePageForShows(showList) {
   rootElem.innerHTML = "";
 
@@ -53,7 +53,7 @@ function makePageForShows(showList) {
   });
 }
 
-// ---------------- EPISODES ----------------
+//  EPISODES 
 function makePageForEpisodes(episodeList) {
   rootElem.innerHTML = "";
 
@@ -76,7 +76,7 @@ function makePageForEpisodes(episodeList) {
   });
 }
 
-// ---------------- LOAD EPISODES ----------------
+//  LOAD EPISODES 
 async function loadEpisodes(showId) {
   const url = `https://api.tvmaze.com/shows/${showId}/episodes`;
 
@@ -93,7 +93,7 @@ async function loadEpisodes(showId) {
   showAllBtn.innerHTML = "";
 }
 
-// ---------------- EPISODE SEARCH ----------------
+//  EPISODE SEARCH 
 function renderEpisodes() {
   const filtered = state.allEpisodes.filter(
     (ep) =>
@@ -114,7 +114,7 @@ searchBox.addEventListener("input", (e) => {
   renderEpisodes();
 });
 
-// ---------------- EPISODE SELECT ----------------
+//  EPISODE SELECT 
 function populateEpisodeSelect(list) {
   selectEpisode.innerHTML = `<option>Select an episode</option>`;
 
@@ -137,7 +137,7 @@ function populateEpisodeSelect(list) {
   });
 }
 
-// ---------------- SHOW ALL BUTTON ----------------
+//  SHOW ALL BUTTON 
 function showAllButton(list) {
   showAllBtn.innerHTML = "";
 
@@ -154,7 +154,7 @@ function showAllButton(list) {
   showAllBtn.append(btn);
 }
 
-// ---------------- SHOW SEARCH ----------------
+//  SHOW SEARCH 
 showSearchBox.addEventListener("input", (e) => {
   state.showSearchTerm = e.target.value.toLowerCase();
 
@@ -167,7 +167,7 @@ showSearchBox.addEventListener("input", (e) => {
   makePageForShows(filtered);
 });
 
-// ---------------- BACK BUTTON ----------------
+//  BACK BUTTON 
 backBtn.addEventListener("click", () => {
   makePageForShows(state.allShows);
 
@@ -176,7 +176,7 @@ backBtn.addEventListener("click", () => {
   showAllBtn.innerHTML = "";
 });
 
-// ---------------- INIT ----------------
+//  INIT 
 async function init() {
   const shows = await getData("https://api.tvmaze.com/shows");
 
