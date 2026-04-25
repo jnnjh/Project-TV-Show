@@ -2,99 +2,43 @@ const state = {
   allEpisodes: [],
   allShows: [],
   searchTerm: "",
-  showSearchTerm: "",
-  cache: {}, // store fetched data (requirement #6)
 };
 
 const rootElem = document.getElementById("root");
 const episodeAmount = document.querySelector("#episodeAmount");
 const episodeSearch = document.querySelector(".episode-search");
 const selectEpisode = document.querySelector("#episode-select");
-const selectShow = document.querySelector("#selectShow");
-const showAllBtn = document.querySelector(".showAllBtn");
-const searchBox = document.getElementById("search");
+const searchShow = document.querySelector("#selectShow");
+const showAllBtn=document.querySelector(".showAllBtn")
 
-// NEW
-const showSearchBox = document.getElementById("showSearch");
-const backBtn = document.getElementById("backBtn");
-
-// ---------------- FETCH WITH CACHE ----------------
-const getData = async (url) => {
-  if (state.cache[url]) return state.cache[url];
-
-  const response = await fetch(url);
-  const data = await response.json();
-  state.cache[url] = data;
-  return data;
-};
-
-// ---------------- SHOW LISTING ----------------
-function makePageForShows(showList) {
-  rootElem.innerHTML = "";
-
-  showList.forEach((show) => {
-    const div = document.createElement("div");
-
-    div.innerHTML = `
-      <h2 class="show-title">${show.name}</h2>
-      <img src="${show.image?.medium || ""}">
-      <p>${show.summary || ""}</p>
-      <p><b>Genres:</b> ${show.genres.join(", ")}</p>
-      <p><b>Status:</b> ${show.status}</p>
-      <p><b>Rating:</b> ${show.rating.average || "N/A"}</p>
-      <p><b>Runtime:</b> ${show.runtime || "?"} mins</p>
-    `;
-
-    div.querySelector(".show-title").addEventListener("click", () => {
-      loadEpisodes(show.id);
-    });
-
-    rootElem.appendChild(div);
-  });
-}
-
-// ---------------- EPISODES ----------------
+//make a card for each episode and append to the page
 function makePageForEpisodes(episodeList) {
-  rootElem.innerHTML = "";
-
+  rootElem.innerHTML = ""; 
   episodeAmount.textContent = `Displaying ${episodeList.length}/${state.allEpisodes.length}`;
-
+  episodeSearch.append(episodeAmount);
   episodeList.forEach((episode) => {
+    // to create zero-padded episode code
     const season = String(episode.season).padStart(2, "0");
     const number = String(episode.number).padStart(2, "0");
-    const code = `S${season}E${number}`;
+    const episodeCode = `S${season}E${number}`;
 
-    const div = document.createElement("div");
+    // to create episode container
+    const episodeDiv = document.createElement("div");
 
-    div.innerHTML = `
-      <h2>${episode.name} - ${code}</h2>
-      <img src="${episode.image?.medium || ""}">
-      <p>${episode.summary || ""}</p>
+    episodeDiv.innerHTML = `
+      <h2>${episode.name} - ${episodeCode}</h2>
+      <img src="${episode.image.medium}" alt="${episode.name}">
+      <p>${episode.summary}</p>
     `;
 
     rootElem.appendChild(div);
   });
 }
 
-// ---------------- LOAD EPISODES ----------------
-async function loadEpisodes(showId) {
-  const url = `https://api.tvmaze.com/shows/${showId}/episodes`;
-
-  const episodeList = await getData(url);
-
-  state.allEpisodes = episodeList;
-
-  makePageForEpisodes(episodeList);
-  populateEpisodeSelect(episodeList);
-
-  // show episode UI
-  episodeSearch.style.display = "grid";
-  backBtn.style.display = "block";
-  showAllBtn.innerHTML = "";
-}
-
-// ---------------- EPISODE SEARCH ----------------
-function renderEpisodes() {
+//show searched episodes
+function render() {
+  const filteredEpisodes = document.querySelector("#root");
+  filteredEpisodes.innerHTML = "";
   const filtered = state.allEpisodes.filter(
     (ep) =>
       ep.name.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
@@ -114,83 +58,90 @@ searchBox.addEventListener("input", (e) => {
   renderEpisodes();
 });
 
-// ---------------- EPISODE SELECT ----------------
-function populateEpisodeSelect(list) {
-  selectEpisode.innerHTML = `<option>Select an episode</option>`;
+//get the input value
+const searchBox = document.getElementById("search");
+searchBox.addEventListener("input", handleInput);
 
-  list.forEach((ep, index) => {
-    const season = String(ep.season).padStart(2, "0");
-    const number = String(ep.number).padStart(2, "0");
-    const code = `S${season}E${number}`;
+//make an select bar for episodes
+function selectAnEpisode (episodeList){
+ episodeList.forEach((episode, index) => {
+  const season = String(episode.season).padStart(2, "0");
+  const number = String(episode.number).padStart(2, "0");
+  const episodeCode = `S${season}E${number}`;
+  const option = document.createElement("option");
+  option.value = index;
+  option.textContent = `${episodeCode} - ${episode.name}`;
+  selectEpisode.appendChild(option);
+ });
 
+selectEpisode.addEventListener("change", (event) => {
+  searchBox.value="";
+  const index = event.target.value;
+  makePageForEpisodes([episodeList[index]]);
+  showAllButton(episodeList);
+});}
+
+//make a show all episode button
+function showAllButton(episodeList) {
+  showAllBtn.innerHTML="";
+  const showAll = document.createElement("button");
+  showAll.textContent = "Show all episodes";
+  showAllBtn.append(showAll);
+  showAll.addEventListener("click", () => {
+    makePageForEpisodes(episodeList);
+    showAllBtn.innerHTML="";
+    selectEpisode.value = "Select an episode";
+    searchBox.value="";
+  });
+}
+
+//fetch data from url
+const getData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch failed:", error);
+  }
+};
+
+//make a select for all the shows
+let showUrl=[];
+getData("https://api.tvmaze.com/shows").then((showList) => {
+  showList.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  showList.forEach((show, index) =>{
     const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `${code} - ${ep.name}`;
-
-    selectEpisode.appendChild(option);
-  });
-
-  selectEpisode.addEventListener("change", (e) => {
-    searchBox.value = "";
-    makePageForEpisodes([list[e.target.value]]);
-    showAllButton(list);
-  });
-}
-
-// ---------------- SHOW ALL BUTTON ----------------
-function showAllButton(list) {
-  showAllBtn.innerHTML = "";
-
-  const btn = document.createElement("button");
-  btn.textContent = "Show all episodes";
-
-  btn.addEventListener("click", () => {
-    makePageForEpisodes(list);
-    showAllBtn.innerHTML = "";
-    selectEpisode.value = "";
-    searchBox.value = "";
-  });
-
-  showAllBtn.append(btn);
-}
-
-// ---------------- SHOW SEARCH ----------------
-showSearchBox.addEventListener("input", (e) => {
-  state.showSearchTerm = e.target.value.toLowerCase();
-
-  const filtered = state.allShows.filter((show) =>
-    show.name.toLowerCase().includes(state.showSearchTerm) ||
-    show.genres.join(" ").toLowerCase().includes(state.showSearchTerm) ||
-    (show.summary || "").toLowerCase().includes(state.showSearchTerm)
-  );
-
-  makePageForShows(filtered);
+    option.textContent = show.name;
+    option.value = show.id;;
+    selectShow.append(option);
+    const episodeUrl = `https://api.tvmaze.com/shows/${show.id}/episodes`;
+    showUrl.push(episodeUrl);
+  })
+  if (showUrl.length > 0) {
+    getData(showUrl[0]).then((episodeList) => {
+      state.allEpisodes = episodeList;
+      makePageForEpisodes(episodeList);
+      selectAnEpisode(episodeList);
+    });
+  }
 });
 
-// ---------------- BACK BUTTON ----------------
-backBtn.addEventListener("click", () => {
-  makePageForShows(state.allShows);
 
-  episodeSearch.style.display = "none";
-  backBtn.style.display = "none";
-  showAllBtn.innerHTML = "";
+//when select a show,make a new page
+selectShow.addEventListener("change", (event) => {
+  selectEpisode.value="";
+  const index = Number(event.target.value);
+  rootElem.innerHTML = "";
+  getData(showUrl[index]).then((episodeList)=>{
+    state.allEpisodes = episodeList;
+    makePageForEpisodes(episodeList);
+    selectAnEpisode(episodeList);
+  })
+
 });
 
-// ---------------- INIT ----------------
-async function init() {
-  const shows = await getData("https://api.tvmaze.com/shows");
 
-  shows.sort((a, b) =>
-    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-  );
-
-  state.allShows = shows;
-
-  makePageForShows(shows);
-
-  // hide episode UI initially
-  episodeSearch.style.display = "none";
-  backBtn.style.display = "none";
-}
-
-init();
+// window.onload = setup;
